@@ -1,0 +1,384 @@
+﻿<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ExamHub</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      * {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen">
+    <div class="fixed top-0 left-0 right-0 bottom-0 w-full h-screen">
+      <img
+        src="/24770152_101.jpg"
+        alt="Student studying at desk"
+        class="hidden w-full h-full object-cover object-center lg:block"
+      />
+      <img
+        src="/24770152_102.jpg"
+        alt="Student studying at desk"
+        class="w-full h-full object-cover object-center lg:hidden"
+      />
+    </div>
+
+    <div
+      class="fixed top-0 left-0 right-0 bottom-0 mx-24 lg:m-0 flex justify-end p-4 sm:p-6 lg:p-10"
+    >
+      <div
+        class="w-[100%] lg:max-w-2xl bg-white rounded-3xl px-8 py-10 sm:px-10 sm:py-12 overflow-y-auto hide-scrollbar"
+      >
+        <div class="flex items-center gap-4 mb-8">
+          <div
+            class="w-9 h-9 rounded-lg bg-[#494BF3] flex items-center justify-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-5 h-5 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+          </div>
+          <span class="text-xl font-bold text-gray-800">ExamHub</span>
+        </div>
+
+        <div id="formCard" class="">
+          <h2 class="text-3xl font-bold text-gray-900 mb-1">Create account</h2>
+          <p class="text-sm text-gray-400 mb-8">
+            Fill in your details to register for ExamHub
+          </p>
+
+          <form id="regForm" novalidate>
+            <div class="flex flex-col sm:flex-row gap-4 mb-2">
+              <div class="form-control w-full">
+                <label class="label pb-1" for="fName">
+                  <span class="label-text text-gray-600 text-sm font-medium"
+                    >First Name</span
+                  >
+                </label>
+                <input
+                  type="text"
+                  id="fName"
+                  placeholder="Jane"
+                  class="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none"
+                  onblur="validateFirstName()"
+                  oninput="if (firstNamePressed) validateFirstName();"
+                />
+                <label class="label pt-1">
+                  <span
+                    id="firstNameValidateError"
+                    class="label-text-alt text-error"
+                  ></span>
+                </label>
+              </div>
+
+              <div class="form-control w-full">
+                <label class="label pb-1" for="lName">
+                  <span class="label-text text-gray-600 text-sm font-medium"
+                    >Last Name</span
+                  >
+                </label>
+                <input
+                  type="text"
+                  id="lName"
+                  placeholder="Doe"
+                  class="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none"
+                  onblur="validateLastName()"
+                  oninput="if (lastNamePressed) validateLastName();"
+                />
+                <label class="label pt-1">
+                  <span
+                    id="lastNameValidateError"
+                    class="label-text-alt text-error"
+                  ></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-control w-full mb-2">
+              <label class="label pb-1" for="email">
+                <span class="label-text text-gray-600 text-sm font-medium"
+                  >Email Address</span
+                >
+              </label>
+              <input
+                type="email"
+                id="email"
+                placeholder="jane.doe@example.com"
+                class="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none"
+                onblur="validateEmail()"
+                oninput="if (emailPressed) validateEmail();"
+              />
+              <label class="label pt-1">
+                <span
+                  id="emailValidateError"
+                  class="label-text-alt text-error"
+                ></span>
+              </label>
+            </div>
+
+            <div class="form-control w-full mb-2">
+              <label class="label pb-1" for="psw">
+                <span class="label-text text-gray-600 text-sm font-medium"
+                  >Password</span
+                >
+              </label>
+              <div class="flex gap-2">
+                <input
+                  type="password"
+                  id="psw"
+                  placeholder="Create a strong password"
+                  class="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none"
+                  onfocus="showMsg()"
+                  onblur="
+                    validatePass();
+                    hideMsg();
+                  "
+                  oninput="validatePass()"
+                />
+                <button
+                  type="button"
+                  class="btn btn-square btn-ghost border border-gray-300 bg-gray-50 hover:bg-gray-100"
+                  onclick="showPass()"
+                >
+                  <svg
+                    id="eyeOpenPass"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5 text-gray-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <svg
+                    id="eyeClosedPass"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5 text-gray-500 hidden"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
+                    />
+                    <path
+                      d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"
+                    />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                    <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+                  </svg>
+                </button>
+              </div>
+              <label class="label pt-1">
+                <span
+                  id="passValidateError"
+                  class="label-text-alt text-error"
+                ></span>
+              </label>
+            </div>
+
+            <div
+              id="message"
+              class="hidden rounded-xl bg-gray-50 border border-gray-200 p-4 mb-2"
+            >
+              <p class="text-sm font-medium text-gray-700 mb-2">
+                Password must contain:
+              </p>
+              <ul class="flex flex-col gap-1.5">
+                <li
+                  id="letter"
+                  class="flex items-center gap-2 text-sm text-error"
+                >
+                  <span
+                    class="w-2 h-2 rounded-full bg-error inline-block"
+                  ></span>
+                  A lowercase letter (a-z)
+                </li>
+                <li
+                  id="capital"
+                  class="flex items-center gap-2 text-sm text-error"
+                >
+                  <span
+                    class="w-2 h-2 rounded-full bg-error inline-block"
+                  ></span>
+                  An uppercase letter (A-Z)
+                </li>
+                <li
+                  id="number"
+                  class="flex items-center gap-2 text-sm text-error"
+                >
+                  <span
+                    class="w-2 h-2 rounded-full bg-error inline-block"
+                  ></span>
+                  A number (0-9)
+                </li>
+                <li
+                  id="special"
+                  class="flex items-center gap-2 text-sm text-error"
+                >
+                  <span
+                    class="w-2 h-2 rounded-full bg-error inline-block"
+                  ></span>
+                  A special character (!@#$...)
+                </li>
+                <li
+                  id="length"
+                  class="flex items-center gap-2 text-sm text-error"
+                >
+                  <span
+                    class="w-2 h-2 rounded-full bg-error inline-block"
+                  ></span>
+                  At least 8 characters
+                </li>
+              </ul>
+            </div>
+
+            <div class="form-control w-full mb-6">
+              <label class="label pb-1" for="confirmPsw">
+                <span class="label-text text-gray-600 text-sm font-medium"
+                  >Confirm Password</span
+                >
+              </label>
+              <div class="flex gap-2">
+                <input
+                  type="password"
+                  id="confirmPsw"
+                  placeholder="Re-enter your password"
+                  class="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none"
+                  onblur="comparePass()"
+                  oninput="if (confirmPressed) comparePass();"
+                />
+                <button
+                  type="button"
+                  class="btn btn-square btn-ghost border border-gray-300 bg-gray-50 hover:bg-gray-100"
+                  onclick="showConfirmPass()"
+                >
+                  <svg
+                    id="eyeOpenConfirm"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5 text-gray-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <svg
+                    id="eyeClosedConfirm"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5 text-gray-500 hidden"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
+                    />
+                    <path
+                      d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"
+                    />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                    <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+                  </svg>
+                </button>
+              </div>
+              <label class="label pt-1">
+                <span
+                  id="confirmPassValidateError"
+                  class="label-text-alt text-error"
+                ></span>
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              class="btn w-full bg-[#494BF3] hover:bg-blue-700 text-white border-none text-base font-semibold rounded-xl mb-4"
+            >
+              Create Account
+            </button>
+
+            <p class="text-center text-sm text-gray-500">
+              Have an account?
+              <a
+                href="login.html"
+                class="text-blue-600 font-semibold hover:underline"
+                >Log In</a
+              >
+            </p>
+          </form>
+        </div>
+
+        <div id="successCard" class="hidden mt-32">
+          <div class="flex flex-col items-center text-center">
+            <div
+              class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-10 h-10 text-green-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">
+              Registration Successful!
+            </h2>
+            <p class="text-gray-500 mb-6">
+              Welcome
+              <span id="successName" class="font-semibold text-gray-800"></span>
+              ! Your account has been created.
+            </p>
+          </div>
+          <div class="flex flex-col lg:flex-row w-[100%] justify-center gap-6">
+            <button
+              id="registerAnotherBtn"
+              class="btn w-full lg:w-[45%] text-[#494BF3] border-solid border-[#494BF3] hover:bg-[#494BF3] hover:text-white bg-white text-base font-semibold rounded-xl"
+              onclick="resetForm()"
+            >
+              Register Another Account
+            </button>
+            <button
+              id=""
+              class="btn w-full lg:w-[45%] bg-[#494BF3] hover:bg-blue-700 text-white border-none text-base font-semibold rounded-xl"
+            >
+              <a href="login.html">Login</a>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="register.js"></script>
+  </body>
+</html>

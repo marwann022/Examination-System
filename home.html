@@ -1,0 +1,1808 @@
+﻿<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ExamHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #c7d2fe;
+        border-radius: 8px;
+      }
+      html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+        background: #3730a3;
+      }
+
+      /* Exam card — shimmer sweep (::after pseudo-element, no Tailwind equivalent) */
+      .exam-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      .exam-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.18),
+          transparent
+        );
+        transition: left 0.65s ease-in-out;
+      }
+      .exam-card:hover::after {
+        left: 100%;
+      }
+      .exam-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      }
+
+      /* Feature card — ::before gradient overlay on hover */
+      .feature-card {
+        transition:
+          box-shadow 0.28s ease,
+          transform 0.28s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(73, 75, 243, 0.04) 0%,
+          transparent 60%
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .feature-card:hover::before {
+        opacity: 1;
+      }
+      .feature-card:hover {
+        box-shadow: 0 16px 40px rgba(73, 75, 243, 0.12);
+        transform: translateY(-5px);
+      }
+
+      /* Step / subject / faq hover effects */
+      .step-card {
+        transition:
+          box-shadow 0.28s ease,
+          transform 0.28s ease;
+      }
+      .step-card:hover {
+        box-shadow: 0 16px 40px rgba(73, 75, 243, 0.1);
+        transform: translateY(-5px);
+      }
+      .subject-pill {
+        transition:
+          box-shadow 0.25s,
+          transform 0.25s,
+          border-color 0.25s;
+      }
+      .subject-pill:hover {
+        border-color: #818cf8;
+        box-shadow: 0 8px 24px rgba(73, 75, 243, 0.12);
+        transform: translateY(-3px);
+      }
+      .faq-item {
+        transition: box-shadow 0.25s;
+      }
+      .faq-item:hover {
+        box-shadow: 0 4px 18px rgba(73, 75, 243, 0.08);
+      }
+
+      /* FAQ accordion — requires max-height animation (no Tailwind equivalent) */
+      .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.35s ease,
+          padding 0.3s ease;
+      }
+      .faq-item.open .faq-answer {
+        max-height: 200px;
+        padding: 0 22px 18px;
+      }
+      .faq-arrow {
+        transition: transform 0.3s ease;
+      }
+      .faq-item.open .faq-arrow {
+        transform: rotate(180deg);
+      }
+
+      /* Scroll reveal */
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity 0.6s ease,
+          transform 0.6s ease;
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Footer brand gradient text (requires -webkit-background-clip) */
+      .footer-brand-name {
+        font-size: 22px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #818cf8, #c7d2fe);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      /* DaisyUI data-theme overrides — attribute selectors have no Tailwind equivalent */
+      html[data-theme="dark"] body {
+        background-color: #0f172a !important;
+      }
+      html[data-theme="dark"] .bg-white {
+        background-color: #1e293b !important;
+      }
+      html[data-theme="dark"] .bg-gray-50 {
+        background-color: #0f172a !important;
+      }
+      html[data-theme="dark"] .border-gray-100,
+      html[data-theme="dark"] .border-gray-200 {
+        border-color: #334155 !important;
+      }
+      html[data-theme="dark"] .text-gray-900 {
+        color: #f1f5f9 !important;
+      }
+      html[data-theme="dark"] .text-gray-800 {
+        color: #e2e8f0 !important;
+      }
+      html[data-theme="dark"] .text-gray-700 {
+        color: #cbd5e1 !important;
+      }
+      html[data-theme="dark"] .text-gray-600 {
+        color: #94a3b8 !important;
+      }
+      html[data-theme="dark"] .text-gray-500 {
+        color: #64748b !important;
+      }
+      html[data-theme="dark"] .exam-card {
+        background-color: #1e293b;
+        border-color: #334155;
+      }
+      html[data-theme="dark"] .feature-card {
+        background: #1e293b;
+        border-color: #334155;
+      }
+      html[data-theme="dark"] .step-card {
+        background: #1e293b;
+        border-color: #334155;
+      }
+      html[data-theme="dark"] .subject-pill {
+        background: #1e293b;
+        border-color: #334155;
+      }
+      html[data-theme="dark"] .subject-pill:hover {
+        border-color: #6366f1;
+      }
+      html[data-theme="dark"] .faq-item {
+        background: #1e293b;
+        border-color: #334155;
+      }
+      html[data-theme="dark"] .modal-box {
+        background-color: #1e293b !important;
+        color: #f1f5f9 !important;
+      }
+      html[data-theme="dark"] .bg-blue-50 {
+        background-color: #1e3a8a22 !important;
+      }
+      html[data-theme="dark"] .border-blue-100 {
+        border-color: #1e3a8a !important;
+      }
+      html[data-theme="dark"] .input {
+        background-color: #1e293b;
+        border-color: #334155;
+        color: #f1f5f9;
+      }
+      html[data-theme="dark"] .input::placeholder {
+        color: #64748b;
+      }
+      html[data-theme="dark"] .site-footer {
+        background: #020617;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 min-h-screen">
+    <div class="bg-white shadow-md border-b border-gray-100 sticky top-0 z-50">
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#494BF3] to-[#6366f1] flex items-center justify-center shadow-lg"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-6 h-6 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+          </div>
+          <span
+            class="text-2xl font-bold bg-gradient-to-r from-[#494BF3] to-[#6366f1] bg-clip-text text-transparent"
+            >ExamHub</span
+          >
+        </div>
+
+        <nav
+          class="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-500"
+        >
+          <a href="#" class="hover:text-indigo-600 transition-colors"
+            >Dashboard</a
+          >
+          <a
+            href="#how-it-works"
+            class="hover:text-indigo-600 transition-colors"
+            >Process</a
+          >
+          <a href="#features" class="hover:text-indigo-600 transition-colors"
+            >Features</a
+          >
+          <a href="#subjects" class="hover:text-indigo-600 transition-colors"
+            >Subjects</a
+          >
+          <a href="#faq" class="hover:text-indigo-600 transition-colors">FAQ</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <label
+            class="swap swap-rotate btn btn-circle btn-ghost"
+            title="Toggle dark mode"
+          >
+            <input type="checkbox" id="theme-toggle" />
+            <svg
+              class="swap-on fill-current w-6 h-6"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"
+              />
+            </svg>
+            <svg
+              class="swap-off fill-current w-6 h-6"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"
+              />
+            </svg>
+          </label>
+
+          <div class="flex items-center gap-3 h-[41.6px]">
+            <div
+              class="flex items-center gap-2 bg-indigo-50 border border-indigo-100 px-3 py-1.5 rounded-xl"
+            >
+              <div
+                class="w-7 h-7 rounded-full bg-gradient-to-br from-[#494BF3] to-[#6366f1] flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </div>
+              <span
+                class="text-indigo-700 font-semibold text-sm hidden sm:inline"
+                id="navUserName"
+                >User</span
+              >
+            </div>
+            <button
+              onclick="document.getElementById('logout-modal').checked = true"
+              class="btn btn-sm gap-1.5 bg-white h-[100%] border-red-200 text-red-600 hover:bg-red-600 hover:text-white hover:border-red-600 rounded-xl"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              <span class="hidden sm:inline">Logout</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+      <div
+        class="bg-gradient-to-r from-[#494BF3] to-[#6366f1] rounded-3xl p-8 mb-10 shadow-xl text-white relative overflow-hidden"
+      >
+        <div
+          class="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-white opacity-[0.07]"
+        ></div>
+        <div
+          class="absolute bottom-0 right-24 -mb-24 w-60 h-60 rounded-full bg-white opacity-[0.07]"
+        ></div>
+        <div class="relative z-10 w-full md:w-2/3">
+          <p
+            class="text-white/60 text-sm font-semibold uppercase tracking-widest mb-2"
+          >
+            Welcome back
+          </p>
+          <h1 class="text-3xl md:text-4xl font-bold mb-3" id="welcomeMessage">
+            Hello, Student!
+          </h1>
+          <p class="text-white/80 text-base mb-6 leading-relaxed">
+            Ready to ace your next test? Explore your available exams below.
+            ExamHub provides a secure, timed environment with auto-save and
+            real-time progress tracking.
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <div
+              class="bg-white/15 backdrop-blur-sm rounded-xl py-3 px-5 flex items-center gap-3"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-white/70"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <div>
+                <span class="font-bold text-xl" id="heroCompletedCount">0</span
+                ><span class="text-sm text-white/70 ml-1.5">Completed</span>
+              </div>
+            </div>
+            <div
+              class="bg-white/15 backdrop-blur-sm rounded-xl py-3 px-5 flex items-center gap-3"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-white/70"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <div>
+                <span class="font-bold text-xl">4</span
+                ><span class="text-sm text-white/70 ml-1.5">Active Exams</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4"
+      >
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800">Your Exams</h2>
+          <p class="text-gray-500 text-sm mt-0.5">
+            Select an available exam to begin
+          </p>
+        </div>
+        <div class="relative w-full md:w-80">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search exams..."
+            class="input input-bordered w-full pl-11 rounded-xl focus:border-[#494BF3] focus:ring-1 focus:ring-[#494BF3]"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 absolute left-3.5 top-3.5 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+        id="examsGrid"
+      ></div>
+
+      <template id="exam-card-tpl">
+        <div
+          class="exam-card bg-white rounded-2xl p-5 shadow-md border border-gray-100 flex flex-col h-full"
+        >
+          <div class="flex items-start justify-between mb-4">
+            <div
+              data-slot="iconWrapper"
+              class="w-12 h-12 rounded-xl flex items-center justify-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                data-slot="iconSvg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  data-slot="iconPath"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d=""
+                />
+              </svg>
+            </div>
+
+            <span
+              data-slot="badgePassed"
+              class="hidden px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 flex items-center gap-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-3 w-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="3"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Passed
+            </span>
+            <span
+              data-slot="badgeFailed"
+              class="hidden px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600 flex items-center gap-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-3 w-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="3"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              Failed
+            </span>
+            <span
+              data-slot="badgeInProgress"
+              class="hidden px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 flex items-center gap-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-3 w-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              In Progress
+            </span>
+            <span
+              data-slot="badgeActive"
+              class="hidden px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700"
+              >Active</span
+            >
+            <span
+              data-slot="badgeUpcoming"
+              class="hidden px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500"
+              >Upcoming</span
+            >
+          </div>
+
+          <h3
+            data-slot="title"
+            class="text-base font-bold text-gray-800 mb-1"
+          ></h3>
+          <p data-slot="category" class="text-xs text-gray-400 mb-4"></p>
+
+          <div class="flex flex-col gap-1.5 mt-auto mb-4">
+            <div class="flex items-center text-xs text-gray-500 gap-1.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span data-slot="duration"></span>
+            </div>
+
+            <div class="flex items-center text-xs text-gray-500 gap-1.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+              <span data-slot="questions"></span>
+            </div>
+
+            <div
+              data-slot="scoreRow"
+              class="hidden flex items-center text-xs gap-1.5 font-semibold"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span data-slot="scoreText"></span>
+            </div>
+          </div>
+
+          <div
+            data-slot="btnPassed"
+            class="hidden w-full btn btn-sm rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-not-allowed gap-2 pointer-events-none"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Passed
+          </div>
+          <div
+            data-slot="btnFailed"
+            class="hidden w-full btn btn-sm rounded-xl bg-red-50 text-red-600 border border-red-200 cursor-not-allowed gap-2 pointer-events-none"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Failed
+          </div>
+          <button
+            data-slot="btnResume"
+            class="hidden w-full btn btn-sm rounded-xl border-none text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 gap-2 shadow-md"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Resume Exam
+          </button>
+          <button
+            data-slot="btnStart"
+            class="hidden w-full btn btn-sm rounded-xl border-none text-white bg-gradient-to-r from-[#494BF3] to-[#6366f1] hover:from-[#3d3fd9] hover:to-[#4f52d9] gap-2 shadow-md"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Take Exam
+          </button>
+          <button
+            data-slot="btnComingSoon"
+            class="hidden w-full btn btn-sm rounded-xl bg-gray-100 text-gray-400 border-none cursor-not-allowed"
+            disabled
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Coming Soon
+          </button>
+        </div>
+      </template>
+
+      <div id="emptyState" class="hidden text-center py-20">
+        <div
+          class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-10 w-10 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">No exams found</h3>
+        <p class="text-gray-500">
+          We couldn't find any exams matching your search.
+        </p>
+      </div>
+    </div>
+
+    <section class="py-20 bg-white" id="how-it-works">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-14 reveal">
+          <span
+            class="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 mb-4 uppercase tracking-widest"
+            >Process</span
+          >
+          <h2
+            class="text-3xl font-extrabold tracking-tight leading-tight text-gray-900 mb-3"
+          >
+            How ExamHub Works
+          </h2>
+          <p
+            class="text-base text-slate-500 leading-relaxed max-w-lg mx-auto text-center"
+          >
+            From registration to results — it's a simple, three-step journey
+            designed to keep you focused and confident.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+          <div
+            class="hidden md:block absolute top-14 left-[calc(16.6%+1.75rem)] right-[calc(16.6%+1.75rem)] h-0.5 bg-gradient-to-r from-indigo-200 via-indigo-400 to-indigo-200 z-0"
+          ></div>
+
+          <div
+            class="step-card reveal bg-white border border-slate-200 rounded-2xl p-8 text-center relative"
+            style="transition-delay: 0.05s"
+          >
+            <div
+              class="w-10 h-10 bg-gradient-to-br from-[#494bf3] to-[#6366f1] text-white rounded-full font-extrabold text-base flex items-center justify-center mx-auto mb-5 shadow-[0_4px_14px_rgba(73,75,243,0.35)]"
+            >
+              1
+            </div>
+            <div
+              class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-7 w-7 text-indigo-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-800 text-lg mb-2">
+              Create Your Account
+            </h3>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              Register with your email in seconds. Your profile and all exam
+              progress are securely saved and tied to your account permanently.
+            </p>
+          </div>
+
+          <div
+            class="step-card reveal bg-white border border-slate-200 rounded-2xl p-8 text-center relative"
+            style="transition-delay: 0.15s"
+          >
+            <div
+              class="w-10 h-10 bg-gradient-to-br from-[#494bf3] to-[#6366f1] text-white rounded-full font-extrabold text-base flex items-center justify-center mx-auto mb-5 shadow-[0_4px_14px_rgba(73,75,243,0.35)]"
+            >
+              2
+            </div>
+            <div
+              class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-7 w-7 text-emerald-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-800 text-lg mb-2">
+              Pick & Take an Exam
+            </h3>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              Choose from available subjects. Once you start, the timer counts
+              down and your answers auto-save every few seconds — even if you
+              reload.
+            </p>
+          </div>
+
+          <div
+            class="step-card reveal bg-white border border-slate-200 rounded-2xl p-8 text-center relative"
+            style="transition-delay: 0.25s"
+          >
+            <div
+              class="w-10 h-10 bg-gradient-to-br from-[#494bf3] to-[#6366f1] text-white rounded-full font-extrabold text-base flex items-center justify-center mx-auto mb-5 shadow-[0_4px_14px_rgba(73,75,243,0.35)]"
+            >
+              3
+            </div>
+            <div
+              class="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-7 w-7 text-amber-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-800 text-lg mb-2">
+              View Instant Results
+            </h3>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              Submit when ready. See a detailed breakdown of every question —
+              your answers, the correct answers, and your final pass/fail
+              verdict immediately.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 bg-gradient-to-r from-[#494BF3] to-[#6366f1]">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div class="flex flex-col items-center gap-1 reveal">
+            <span class="text-3xl md:text-4xl font-extrabold text-white"
+              >4</span
+            >
+            <span class="text-white/70 text-sm font-medium"
+              >Available Subjects</span
+            >
+          </div>
+          <div
+            class="flex flex-col items-center gap-1 reveal"
+            style="transition-delay: 0.1s"
+          >
+            <span class="text-3xl md:text-4xl font-extrabold text-white"
+              >40</span
+            >
+            <span class="text-white/70 text-sm font-medium"
+              >Total Questions</span
+            >
+          </div>
+          <div
+            class="flex flex-col items-center gap-1 reveal"
+            style="transition-delay: 0.2s"
+          >
+            <span class="text-3xl md:text-4xl font-extrabold text-white"
+              >30 min</span
+            >
+            <span class="text-white/70 text-sm font-medium">Per Exam</span>
+          </div>
+          <div
+            class="flex flex-col items-center gap-1 reveal"
+            style="transition-delay: 0.3s"
+          >
+            <span class="text-3xl md:text-4xl font-extrabold text-white"
+              >60%</span
+            >
+            <span class="text-white/70 text-sm font-medium">Passing Score</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-20 bg-gray-50" id="features">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-14 reveal">
+          <span
+            class="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 mb-4 uppercase tracking-widest"
+            >Features</span
+          >
+          <h2
+            class="text-3xl font-extrabold tracking-tight leading-tight text-gray-900 mb-3"
+          >
+            Everything You Need to Excel
+          </h2>
+          <p
+            class="text-base text-slate-500 leading-relaxed max-w-lg mx-auto text-center"
+          >
+            ExamHub is built with powerful tools that create a realistic, fair,
+            and stress-free environment for every student.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            class="feature-card reveal bg-white border border-slate-200 rounded-[20px] p-7"
+          >
+            <div
+              class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-indigo-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+                />
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-800 text-base mb-2">
+              Auto-Save Progress
+            </h3>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              Your answers, notes, and timer are saved automatically every few
+              seconds. Reload the page without fear — you'll return to exactly
+              where you left off.
+            </p>
+          </div>
+
+          <div
+            class="feature-card reveal bg-white border border-slate-200 rounded-[20px] p-7"
+            style="transition-delay: 0.08s"
+          >
+            <div
+              class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-emerald-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-800 text-base mb-2">
+              Live Countdown Timer
+            </h3>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              A prominent 30-minute timer counts down in real time. Visual
+              urgency cues change color as time runs low, and the exam
+              auto-submits when time expires.
+            </p>
+          </div>
+
+          <div
+            class="feature-card reveal bg-white border border-slate-200 rounded-[20px] p-7"
+            style="transition-delay: 0.16s"
+          >
+            <div
+              class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-amber-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                />
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-800 text-base mb-2">
+              Question Bookmarks
+            </h3>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              Flag any question for quick review later. Bookmarks are persisted
+              alongside your answers so you never lose track of tricky questions
+              mid-exam.
+            </p>
+          </div>
+
+          <div
+            class="feature-card reveal bg-white border border-slate-200 rounded-[20px] p-7"
+            style="transition-delay: 0.04s"
+          >
+            <div
+              class="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-pink-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-800 text-base mb-2">
+              Per-Question Notes
+            </h3>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              Jot down reasoning or reminders for each individual question in a
+              dedicated notes panel. Notes are saved along with your answers
+              automatically.
+            </p>
+          </div>
+
+          <div
+            class="feature-card reveal bg-white border border-slate-200 rounded-[20px] p-7"
+            style="transition-delay: 0.12s"
+          >
+            <div
+              class="w-12 h-12 rounded-2xl bg-cyan-50 flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-cyan-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-800 text-base mb-2">
+              Built-in Calculator
+            </h3>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              A floating mini-calculator is always a click away during the exam
+              — no need to switch tabs for quick arithmetic, keeping your focus
+              intact.
+            </p>
+          </div>
+
+          <div
+            class="feature-card reveal bg-white border border-slate-200 rounded-[20px] p-7"
+            style="transition-delay: 0.2s"
+          >
+            <div
+              class="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center mb-4"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-violet-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-800 text-base mb-2">
+              Detailed Results
+            </h3>
+            <p class="text-sm text-gray-500 leading-relaxed">
+              After submission you get a thorough breakdown: every question,
+              your answer vs the correct one, your score percentage, and a clear
+              PASSED or FAILED verdict.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-20 bg-white" id="subjects">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-14 reveal">
+          <span
+            class="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-pink-50 text-pink-600 mb-4 uppercase tracking-widest"
+            >Curriculum</span
+          >
+          <h2
+            class="text-3xl font-extrabold tracking-tight leading-tight text-gray-900 mb-3"
+          >
+            Covered Subjects
+          </h2>
+          <p
+            class="text-base text-slate-500 leading-relaxed max-w-lg mx-auto text-center"
+          >
+            Each exam is carefully curated with 10 expert-level questions to
+            test your real-world knowledge of the subject.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+          <div
+            class="subject-pill reveal flex items-center gap-3 bg-white border border-slate-200 rounded-2xl p-4 cursor-default"
+          >
+            <div
+              class="w-11 h-11 rounded-xl bg-pink-100 flex items-center justify-center flex-shrink-0"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-pink-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
+                />
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-gray-800 text-sm">UI/UX Design</p>
+              <p class="text-xs text-gray-500 mt-0.5">
+                Wireframes, Fitts's Law, WCAG, usability heuristics
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="subject-pill reveal flex items-center gap-3 bg-white border border-slate-200 rounded-2xl p-4 cursor-default"
+            style="transition-delay: 0.08s"
+          >
+            <div
+              class="w-11 h-11 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-orange-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                />
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-gray-800 text-sm">HTML Fundamentals</p>
+              <p class="text-xs text-gray-500 mt-0.5">
+                Semantic elements, forms, accessibility, HTML5 APIs
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="subject-pill reveal flex items-center gap-3 bg-white border border-slate-200 rounded-2xl p-4 cursor-default"
+            style="transition-delay: 0.16s"
+          >
+            <div
+              class="w-11 h-11 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                />
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-gray-800 text-sm">CSS Styling</p>
+              <p class="text-xs text-gray-500 mt-0.5">
+                Flexbox, Grid, box model, animations, pseudo-classes
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="subject-pill reveal flex items-center gap-3 bg-white border border-slate-200 rounded-2xl p-4 cursor-default"
+            style="transition-delay: 0.24s"
+          >
+            <div
+              class="w-11 h-11 rounded-xl bg-yellow-100 flex items-center justify-center flex-shrink-0"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-yellow-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <div>
+              <p class="font-bold text-gray-800 text-sm">JavaScript</p>
+              <p class="text-xs text-gray-500 mt-0.5">
+                Closures, Promises, async/await, array methods, Types
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pt-16 bg-gray-50" id="faq">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-14 reveal">
+          <span
+            class="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-violet-50 text-violet-600 mb-4 uppercase tracking-widest"
+            >FAQ</span
+          >
+          <h2
+            class="text-3xl font-extrabold tracking-tight leading-tight text-gray-900 mb-3"
+          >
+            Frequently Asked Questions
+          </h2>
+          <p
+            class="text-base text-slate-500 leading-relaxed max-w-lg mx-auto text-center"
+          >
+            Everything you need to know before you sit your first exam.
+          </p>
+        </div>
+        <div class="max-w-2xl mx-auto flex flex-col gap-3">
+          <div
+            class="faq-item reveal bg-white border border-slate-200 rounded-2xl overflow-hidden"
+          >
+            <button
+              class="faq-question w-full text-left px-5 py-4 font-bold text-sm bg-transparent border-none cursor-pointer flex justify-between items-center gap-4 text-inherit"
+              onclick="toggleFaq(this)"
+            >
+              Can I retake an exam after submitting?
+              <svg
+                class="faq-arrow flex-shrink-0 w-5 h-5 text-indigo-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div class="faq-answer text-sm text-slate-500 leading-relaxed px-5">
+              No. Each exam can only be taken once per account. Once you submit
+              (or the timer expires), your result is permanently recorded and
+              the exam card on your dashboard will show your final score. This
+              ensures fairness for all users.
+            </div>
+          </div>
+
+          <div
+            class="faq-item reveal bg-white border border-slate-200 rounded-2xl overflow-hidden"
+            style="transition-delay: 0.06s"
+          >
+            <button
+              class="faq-question w-full text-left px-5 py-4 font-bold text-sm bg-transparent border-none cursor-pointer flex justify-between items-center gap-4 text-inherit"
+              onclick="toggleFaq(this)"
+            >
+              What happens if I accidentally close the browser or refresh?
+              <svg
+                class="faq-arrow flex-shrink-0 w-5 h-5 text-indigo-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div class="faq-answer text-sm text-slate-500 leading-relaxed px-5">
+              Don't worry — ExamHub continuously auto-saves your answers, notes,
+              bookmarks, and remaining timer. If you refresh or accidentally
+              close the tab, simply come back and you'll be taken straight back
+              to the same question with everything intact.
+            </div>
+          </div>
+
+          <div
+            class="faq-item reveal bg-white border border-slate-200 rounded-2xl overflow-hidden"
+            style="transition-delay: 0.12s"
+          >
+            <button
+              class="faq-question w-full text-left px-5 py-4 font-bold text-sm bg-transparent border-none cursor-pointer flex justify-between items-center gap-4 text-inherit"
+              onclick="toggleFaq(this)"
+            >
+              Is my progress saved if I log out mid-exam?
+              <svg
+                class="faq-arrow flex-shrink-0 w-5 h-5 text-indigo-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div class="faq-answer text-sm text-slate-500 leading-relaxed px-5">
+              Yes. Your answers and progress are stored locally on your device
+              and tied to your account email. If you log out and log back in on
+              the same browser, your in-progress exam card will appear with a
+              "Resume Exam" button so you can continue exactly where you
+              stopped.
+            </div>
+          </div>
+
+          <div
+            class="faq-item reveal bg-white border border-slate-200 rounded-2xl overflow-hidden"
+            style="transition-delay: 0.18s"
+          >
+            <button
+              class="faq-question w-full text-left px-5 py-4 font-bold text-sm bg-transparent border-none cursor-pointer flex justify-between items-center gap-4 text-inherit"
+              onclick="toggleFaq(this)"
+            >
+              What score do I need to pass?
+              <svg
+                class="faq-arrow flex-shrink-0 w-5 h-5 text-indigo-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div class="faq-answer text-sm text-slate-500 leading-relaxed px-5">
+              The passing threshold is 60%. Each exam has 10 questions, so you
+              need to answer at least 6 correctly to pass. Your results page
+              will clearly show PASSED ✓ or FAILED ✗ along with a per-question
+              breakdown.
+            </div>
+          </div>
+
+          <div
+            class="faq-item reveal bg-white border border-slate-200 rounded-2xl overflow-hidden"
+            style="transition-delay: 0.24s"
+          >
+            <button
+              class="faq-question w-full text-left px-5 py-4 font-bold text-sm bg-transparent border-none cursor-pointer flex justify-between items-center gap-4 text-inherit"
+              onclick="toggleFaq(this)"
+            >
+              Can I switch browser tabs during the exam?
+              <svg
+                class="faq-arrow flex-shrink-0 w-5 h-5 text-indigo-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div class="faq-answer text-sm text-slate-500 leading-relaxed px-5">
+              Tab switching is monitored. Leaving the exam tab for the first
+              time triggers a strict warning. A second tab-switch results in
+              automatic exam submission, regardless of how many questions you've
+              answered. Stay focused!
+            </div>
+          </div>
+
+          <div
+            class="faq-item reveal bg-white border border-slate-200 rounded-2xl overflow-hidden"
+            style="transition-delay: 0.3s"
+          >
+            <button
+              class="faq-question w-full text-left px-5 py-4 font-bold text-sm bg-transparent border-none cursor-pointer flex justify-between items-center gap-4 text-inherit"
+              onclick="toggleFaq(this)"
+            >
+              Are the questions always in the same order?
+              <svg
+                class="faq-arrow flex-shrink-0 w-5 h-5 text-indigo-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div class="faq-answer text-sm text-slate-500 leading-relaxed px-5">
+              No — questions are shuffled randomly when a new exam session
+              starts. However, once your exam is in progress, that specific
+              order is saved and preserved across reloads so you always see the
+              same consistent sequence for your session.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer bg-[#0f172a] text-slate-400 pt-10 pb-4 mt-20">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <div
+                class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#494BF3] to-[#6366f1] flex items-center justify-center shadow-lg flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                </svg>
+              </div>
+              <span class="footer-brand-name">ExamHub</span>
+            </div>
+            <p class="text-sm leading-relaxed text-slate-400">
+              A modern, browser-based examination platform built for students
+              who demand a secure, distraction-free, and fully persistent
+              testing experience.
+            </p>
+          </div>
+
+          <div>
+            <h4
+              class="text-white font-bold text-sm mb-4 uppercase tracking-widest"
+            >
+              Quick Links
+            </h4>
+            <ul class="flex flex-col gap-2.5">
+              <li>
+                <a
+                  href="#how-it-works"
+                  class="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
+                  >How It Works</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#features"
+                  class="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
+                  >Features</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#subjects"
+                  class="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
+                  >Subjects</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#faq"
+                  class="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
+                  >FAQ</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4
+              class="text-white font-bold text-sm mb-4 uppercase tracking-widest"
+            >
+              System Info
+            </h4>
+            <ul class="flex flex-col gap-2.5">
+              <li class="flex items-center gap-2 text-sm text-slate-400">
+                <svg
+                  class="h-4 w-4 text-emerald-400 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                4 exam subjects available
+              </li>
+              <li class="flex items-center gap-2 text-sm text-slate-400">
+                <svg
+                  class="h-4 w-4 text-emerald-400 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Persistent auto-save memory
+              </li>
+              <li class="flex items-center gap-2 text-sm text-slate-400">
+                <svg
+                  class="h-4 w-4 text-emerald-400 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Dark &amp; light mode support
+              </li>
+              <li class="flex items-center gap-2 text-sm text-slate-400">
+                <svg
+                  class="h-4 w-4 text-emerald-400 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Tab-switch monitoring
+              </li>
+              <li class="flex items-center gap-2 text-sm text-slate-400">
+                <svg
+                  class="h-4 w-4 text-emerald-400 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Instant detailed results
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          class="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3"
+        >
+          <p class="text-xs text-slate-500">
+            &copy; 2026 ExamHub. All rights reserved.
+          </p>
+          <p class="text-xs text-slate-600">
+            Built with ❤️ for learners everywhere
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // -- FAQ toggle --
+      function toggleFaq(btn) {
+        var item = btn.closest(".faq-item");
+        var isOpen = item.classList.contains("open");
+        document.querySelectorAll(".faq-item.open").forEach(function (el) {
+          el.classList.remove("open");
+        });
+        if (!isOpen) item.classList.add("open");
+      }
+
+      // -- Intersection Observer for scroll reveal --
+      (function () {
+        var els = document.querySelectorAll(".reveal");
+        if (!("IntersectionObserver" in window)) {
+          els.forEach(function (e) {
+            e.classList.add("visible");
+          });
+          return;
+        }
+        var obs = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                obs.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12 },
+        );
+        els.forEach(function (el) {
+          obs.observe(el);
+        });
+      })();
+    </script>
+
+    <input type="checkbox" id="logout-modal" class="modal-toggle" />
+    <div class="modal backdrop-blur-sm">
+      <div class="modal-box rounded-2xl max-w-sm">
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-red-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-xl text-base-content">Logout?</h3>
+            <p class="text-sm text-base-content/60">
+              You'll need to sign in again
+            </p>
+          </div>
+        </div>
+        <p class="text-base-content/70 mb-5">
+          Are you sure you want to log out of your account?
+        </p>
+        <div class="flex gap-3">
+          <label
+            for="logout-modal"
+            class="btn btn-ghost flex-1 rounded-xl bg-gray-100 text-gray-800"
+            >Cancel</label
+          >
+          <button
+            id="confirmLogoutBtn"
+            class="btn btn-error flex-1 rounded-xl gap-2 text-white"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="home.js"></script>
+    <script src="cursor.js"></script>
+  </body>
+</html>
