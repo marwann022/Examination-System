@@ -1,8 +1,12 @@
-24770152_101.jpg
-24770152_102.jpg
-24770152_103.jpg
-24770152_104.jpg
-placeholder-logo.svg
-placeholder.svg
-tailwind.config.js
+# Images
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.webp
+
+# Other files
 .gitignore
+*.rar
+*.zip
