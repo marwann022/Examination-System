@@ -7,6 +7,5 @@
 *.webp
 
 # Other files
-.gitignore
 *.rar
 *.zip
